@@ -27,7 +27,14 @@ public class MyOffice_ACPDController : ControllerBase
             {
                 var dataTable = new DataTable();
                 dataTable.Load(reader);
-                jsonResult = JsonSerializer.Serialize(dataTable);
+                if (dataTable.Rows.Count > 0)
+                {
+                    jsonResult = JsonSerializer.Serialize(dataTable);
+                }
+                else
+                {
+                    return NotFound();
+                }
             }
         }
         return jsonResult;
@@ -47,6 +54,10 @@ public class MyOffice_ACPDController : ControllerBase
             {
                 var dataTable = new DataTable();
                 dataTable.Load(reader);
+                if (dataTable.Rows.Count == 0)
+                {
+                    return NotFound();
+                }
                 jsonResult = JsonSerializer.Serialize(dataTable);
             }
         }
@@ -78,7 +89,7 @@ public class MyOffice_ACPDController : ControllerBase
     {
         using (var connection = new SqlConnection(_connectionString))
         {
-            var command = new SqlCommand("Exec InsertMyOffice_ACPD @json", connection);
+            var command = new SqlCommand("Exec dbo.InsertMyOffice_ACPD @json", connection);
             command.Parameters.AddWithValue("@json", jsonElement.GetRawText());
             await connection.OpenAsync();
             var result = await command.ExecuteNonQueryAsync();
